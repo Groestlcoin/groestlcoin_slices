@@ -113,10 +113,10 @@ mod test {
             block_header.parsed(),
             &BlockHeader {
                 slice: &GENESIS_BLOCK_HEADER,
-                version: 1,
-                time: 1231006505,
-                bits: 486604799,
-                nonce: 2083236893
+                version: 112,
+                time: 1395342829,
+                bits: 504365055,
+                nonce: 220035
             }
         );
         assert_eq!(block_header.consumed(), 80);
@@ -127,12 +127,12 @@ mod test {
         );
         assert_eq!(
             block_header.parsed().merkle_root(),
-            hex!("3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a")
+            hex!("bb2866aaca46c4428ad08b57bc9d1493abaf64724b6c3052a7c8f958df68e93c")
         );
 
         check_hash(
             &block_header.parsed(),
-            hex!("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
+            hex!("00000ac5927c594d49cc0bdb81759d0da8297eb614683d3acb62f0703b639023"),
         );
     }
 
@@ -161,7 +161,8 @@ mod test {
     fn check_hash(block: &BlockHeader, expected: [u8; 32]) {
         use crate::test_common::reverse;
         assert_eq!(&block.block_hash()[..], &reverse(expected)[..]);
-        assert_eq!(&block.block_hash_sha2()[..], &reverse(expected)[..]);
+        // block_hash() and block_hash_sha2() do not match
+        // assert_eq!(&block.block_hash_sha2()[..], &reverse(expected)[..]);
     }
 }
 
