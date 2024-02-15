@@ -111,12 +111,12 @@ pub mod visitor {
 
 #[cfg(test)]
 mod test {
-    use hex_lit::hex;
     use crate::{
         bsl::{Block, BlockHeader},
         test_common::GENESIS_BLOCK,
         Parse,
     };
+    use hex_lit::hex;
 
     #[test]
     fn parse_block() {
@@ -176,8 +176,8 @@ mod bench {
 
     use crate::bsl::{Block, TxOut};
     use crate::{Parse, Visit, Visitor};
-    use groestlcoin::consensus::deserialize;
     use bitcoin_test_data::blocks::mainnet_702861;
+    use groestlcoin::consensus::deserialize;
     use test::{black_box, Bencher};
 
     #[bench]

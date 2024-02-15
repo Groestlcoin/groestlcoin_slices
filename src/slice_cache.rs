@@ -235,8 +235,8 @@ mod tests {
     #[cfg(feature = "groestlcoin")]
     #[test]
     fn with_transactions() {
-        use groestlcoin::consensus::Decodable;
         use bitcoin_test_data::blocks::mainnet_702861;
+        use groestlcoin::consensus::Decodable;
         use std::collections::HashMap;
 
         let block_slice = mainnet_702861();
