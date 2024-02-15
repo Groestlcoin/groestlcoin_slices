@@ -101,15 +101,15 @@ impl<'a> Transaction<'a> {
     /// Return the transaction identifier.
     /// If the transaction is legacy (non-segwit) this identifier could be malleated, meaning
     /// the same transaction effect could have different identifiers.
-    #[cfg(feature = "bitcoin_hashes")]
-    pub fn txid(&self) -> crate::bitcoin_hashes::sha256d::Hash {
-        use crate::bitcoin_hashes::{sha256d, Hash, HashEngine};
+    #[cfg(feature = "groestlcoin_hashes")]
+    pub fn txid(&self) -> crate::groestlcoin_hashes::sha256::Hash {
+        use crate::groestlcoin_hashes::{sha256, Hash, HashEngine};
         let (a, b, c) = self.txid_preimage();
-        let mut engine = sha256d::Hash::engine();
+        let mut engine = sha256::Hash::engine();
         engine.input(a);
         engine.input(b);
         engine.input(c);
-        sha256d::Hash::from_engine(engine)
+        sha256::Hash::from_engine(engine)
     }
 
     /// Calculate the txid using the sha2 crate.
@@ -264,20 +264,20 @@ mod test {
         assert_eq!(std::mem::size_of::<Transaction>(), 24);
     }
 
-    #[cfg(all(not(feature = "sha2"), not(feature = "bitcoin_hashes")))]
+    #[cfg(all(not(feature = "sha2"), not(feature = "groestlcoin_hashes")))]
     fn check_hash(_tx: &Transaction, _expected: [u8; 32]) {}
 
-    #[cfg(all(not(feature = "sha2"), feature = "bitcoin_hashes"))]
+    #[cfg(all(not(feature = "sha2"), feature = "groestlcoin_hashes"))]
     fn check_hash(tx: &Transaction, expected: [u8; 32]) {
         use crate::test_common::reverse;
         assert_eq!(&tx.txid()[..], &reverse(expected)[..]);
     }
-    #[cfg(all(feature = "sha2", not(feature = "bitcoin_hashes")))]
+    #[cfg(all(feature = "sha2", not(feature = "groestlcoin_hashes")))]
     fn check_hash(tx: &Transaction, expected: [u8; 32]) {
         use crate::test_common::reverse;
         assert_eq!(&tx.txid_sha2()[..], &reverse(expected)[..]);
     }
-    #[cfg(all(feature = "sha2", feature = "bitcoin_hashes"))]
+    #[cfg(all(feature = "sha2", feature = "groestlcoin_hashes"))]
     fn check_hash(tx: &Transaction, expected: [u8; 32]) {
         use crate::test_common::reverse;
         assert_eq!(&tx.txid()[..], &reverse(expected)[..]);
@@ -328,7 +328,7 @@ mod bench {
         bh.bytes = BENCH_TX.len() as u64;
     }
 
-    #[cfg(feature = "bitcoin_hashes")]
+    #[cfg(feature = "groestlcoin_hashes")]
     #[bench]
     pub fn txid(bh: &mut Bencher) {
         let tx = Transaction::parse(&BENCH_TX[..]).unwrap().parsed_owned();

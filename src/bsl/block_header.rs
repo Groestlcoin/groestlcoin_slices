@@ -70,12 +70,12 @@ impl<'a> BlockHeader<'a> {
     }
 
     /// Returns the hash of this block header
-    #[cfg(feature = "bitcoin_hashes")]
-    pub fn block_hash(&self) -> crate::bitcoin_hashes::sha256d::Hash {
-        use crate::bitcoin_hashes::{sha256d, Hash, HashEngine};
-        let mut engine = sha256d::Hash::engine();
+    #[cfg(feature = "groestlcoin_hashes")]
+    pub fn block_hash(&self) -> crate::groestlcoin_hashes::groestld::Hash {
+        use crate::groestlcoin_hashes::{groestld, Hash, HashEngine};
+        let mut engine = groestld::Hash::engine();
         engine.input(self.block_hash_preimage());
-        sha256d::Hash::from_engine(engine)
+        groestld::Hash::from_engine(engine)
     }
 
     /// Calculate the block hash using the sha2 crate.
@@ -142,22 +142,22 @@ mod test {
         assert_eq!(std::mem::size_of::<BlockHeader>(), 32);
     }
 
-    #[cfg(all(not(feature = "sha2"), not(feature = "bitcoin_hashes")))]
+    #[cfg(all(not(feature = "sha2"), not(feature = "groestlcoin_hashes")))]
     fn check_hash(_block: &BlockHeader, _expected: [u8; 32]) {}
 
-    #[cfg(all(not(feature = "sha2"), feature = "bitcoin_hashes"))]
+    #[cfg(all(not(feature = "sha2"), feature = "groestlcoin_hashes"))]
     fn check_hash(block: &BlockHeader, expected: [u8; 32]) {
         use crate::test_common::reverse;
         assert_eq!(&block.block_hash()[..], &reverse(expected)[..]);
     }
 
-    #[cfg(all(feature = "sha2", not(feature = "bitcoin_hashes")))]
+    #[cfg(all(feature = "sha2", not(feature = "groestlcoin_hashes")))]
     fn check_hash(block: &BlockHeader, expected: [u8; 32]) {
         use crate::test_common::reverse;
         assert_eq!(&block.block_hash_sha2()[..], &reverse(expected)[..]);
     }
 
-    #[cfg(all(feature = "sha2", feature = "bitcoin_hashes"))]
+    #[cfg(all(feature = "sha2", feature = "groestlcoin_hashes"))]
     fn check_hash(block: &BlockHeader, expected: [u8; 32]) {
         use crate::test_common::reverse;
         assert_eq!(&block.block_hash()[..], &reverse(expected)[..]);
@@ -168,7 +168,7 @@ mod test {
 #[cfg(bench)]
 mod bench {
 
-    #[cfg(feature = "bitcoin_hashes")]
+    #[cfg(feature = "groestlcoin_hashes")]
     #[bench]
     pub fn block_hash(bh: &mut test::Bencher) {
         use crate::bsl::BlockHeader;

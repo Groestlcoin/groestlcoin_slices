@@ -37,8 +37,8 @@ impl<'a> Visit<'a> for Block<'a> {
 
 impl<'a> Block<'a> {
     /// Returns the hash of this block
-    #[cfg(feature = "bitcoin_hashes")]
-    pub fn block_hash(&self) -> crate::bitcoin_hashes::sha256d::Hash {
+    #[cfg(feature = "groestlcoin_hashes")]
+    pub fn block_hash(&self) -> crate::groestlcoin_hashes::groestld::Hash {
         self.header.block_hash()
     }
 
@@ -227,7 +227,7 @@ mod bench {
         });
     }
 
-    #[cfg(feature = "bitcoin_hashes")]
+    #[cfg(feature = "groestlcoin_hashes")]
     #[bench]
     pub fn hash_block_txs(bh: &mut Bencher) {
         use core::ops::ControlFlow;
