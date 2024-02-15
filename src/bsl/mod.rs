@@ -37,5 +37,5 @@ pub use tx_outs::TxOuts;
 pub use witness::Witness;
 pub use witnesses::Witnesses;
 
-#[cfg(all(feature = "bitcoin", feature = "sha2"))]
+#[cfg(all(feature = "groestlcoin", feature = "sha2"))]
 pub use block::visitor::FindTransaction;

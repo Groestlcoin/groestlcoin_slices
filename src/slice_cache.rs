@@ -216,7 +216,7 @@ mod tests {
         println!("{:?}", cache.insertions);
     }
 
-    #[cfg(feature = "bitcoin")]
+    #[cfg(feature = "groestlcoin")]
     #[test]
     fn with_transaction() {
         let segwit_tx = hex!("010000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff3603da1b0e00045503bd5704c7dd8a0d0ced13bb5785010800000000000a636b706f6f6c122f4e696e6a61506f6f6c2f5345475749542fffffffff02b4e5a212000000001976a914876fbb82ec05caa6af7a3b5e5a983aae6c6cc6d688ac0000000000000000266a24aa21a9edf91c46b49eb8a29089980f02ee6b57e7d63d33b18b4fddac2bcd7db2a39837040120000000000000000000000000000000000000000000000000000000000000000000000000");
@@ -232,19 +232,19 @@ mod tests {
         assert_eq!(val, segwit_tx);
     }
 
-    #[cfg(feature = "bitcoin")]
+    #[cfg(feature = "groestlcoin")]
     #[test]
     fn with_transactions() {
-        use bitcoin::consensus::Decodable;
+        use groestlcoin::consensus::Decodable;
         use bitcoin_test_data::blocks::mainnet_702861;
         use std::collections::HashMap;
 
         let block_slice = mainnet_702861();
-        let block = bitcoin::Block::consensus_decode(&mut &block_slice[..]).unwrap();
+        let block = groestlcoin::Block::consensus_decode(&mut &block_slice[..]).unwrap();
         let txs: HashMap<_, _> = block
             .txdata
             .into_iter()
-            .map(|tx| (tx.txid(), bitcoin::consensus::serialize(&tx)))
+            .map(|tx| (tx.txid(), groestlcoin::consensus::serialize(&tx)))
             .collect();
 
         let cache_size = 600_000;
@@ -270,7 +270,7 @@ mod tests {
         }
     }
 
-    #[cfg(all(feature = "bitcoin", feature = "redb"))]
+    #[cfg(all(feature = "groestlcoin", feature = "redb"))]
     #[test]
     fn with_transaction_value() {
         use crate::bsl::Transaction;

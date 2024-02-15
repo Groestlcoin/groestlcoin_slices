@@ -198,7 +198,7 @@ impl<'o> redb::RedbValue for Transaction<'o> {
 #[cfg(test)]
 mod test {
     use crate::{bsl::Transaction, test_common::GENESIS_TX, Parse};
-    use bitcoin::consensus::deserialize;
+    use groestlcoin::consensus::deserialize;
     use hex_lit::hex;
 
     #[test]
@@ -251,8 +251,8 @@ mod test {
 
         assert_ne!(tx, tx_nonminimal);
 
-        assert!(deserialize::<bitcoin::Transaction>(&tx).is_ok());
-        assert!(deserialize::<bitcoin::Transaction>(&tx_nonminimal).is_err());
+        assert!(deserialize::<groestlcoin::Transaction>(&tx).is_ok());
+        assert!(deserialize::<groestlcoin::Transaction>(&tx_nonminimal).is_err());
 
         assert!(Transaction::parse(&tx[..]).is_ok());
         assert!(Transaction::parse(&tx_nonminimal[..]).is_err());
@@ -284,13 +284,13 @@ mod test {
         assert_eq!(&tx.txid_sha2()[..], &reverse(expected)[..]);
     }
 
-    #[cfg(feature = "bitcoin")]
+    #[cfg(feature = "groestlcoin")]
     #[test]
     fn test_weight() {
         fn check_weight(tx_bytes: &[u8]) {
             let tx = Transaction::parse(&tx_bytes[..]).unwrap().parsed_owned();
-            let bitcoin_tx: bitcoin::Transaction =
-                bitcoin::consensus::deserialize(&tx_bytes[..]).unwrap();
+            let bitcoin_tx: groestlcoin::Transaction =
+                groestlcoin::consensus::deserialize(&tx_bytes[..]).unwrap();
             assert_eq!(tx.weight(), bitcoin_tx.weight().to_wu());
         }
 
@@ -304,7 +304,7 @@ mod test {
 mod bench {
     use crate::bsl::Transaction;
     use crate::Parse;
-    use bitcoin::consensus::deserialize;
+    use groestlcoin::consensus::deserialize;
     use hex_lit::hex;
     use test::{black_box, Bencher};
 
@@ -322,7 +322,7 @@ mod bench {
     #[bench]
     pub fn tx_deserialize_bitcoin(bh: &mut Bencher) {
         bh.iter(|| {
-            let tx: bitcoin::Transaction = deserialize(&BENCH_TX).unwrap();
+            let tx: groestlcoin::Transaction = deserialize(&BENCH_TX).unwrap();
             black_box(&tx);
         });
         bh.bytes = BENCH_TX.len() as u64;
@@ -348,7 +348,7 @@ mod bench {
 
     #[bench]
     pub fn txid_bitcoin(bh: &mut Bencher) {
-        let tx: bitcoin::Transaction = deserialize(&BENCH_TX[..]).unwrap();
+        let tx: groestlcoin::Transaction = deserialize(&BENCH_TX[..]).unwrap();
         bh.iter(|| {
             black_box(&tx.txid());
         });

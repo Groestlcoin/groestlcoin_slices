@@ -69,36 +69,36 @@ impl<'a> AsRef<[u8]> for Block<'a> {
     }
 }
 
-#[cfg(all(feature = "bitcoin", feature = "sha2"))]
+#[cfg(all(feature = "groestlcoin", feature = "sha2"))]
 pub mod visitor {
     use core::ops::ControlFlow;
 
-    use bitcoin::consensus::Decodable;
-    use bitcoin::hashes::Hash;
+    use groestlcoin::consensus::Decodable;
+    use groestlcoin::hashes::Hash;
 
     /// Implement a visitor to find a Transaction in a Block given its txid
     pub struct FindTransaction {
-        to_find: bitcoin::Txid,
-        tx_found: Option<bitcoin::Transaction>,
+        to_find: groestlcoin::Txid,
+        tx_found: Option<groestlcoin::Transaction>,
     }
     impl FindTransaction {
         /// Creates [`FindTransaction`] for txid `to_find`
-        pub fn new(to_find: bitcoin::Txid) -> Self {
+        pub fn new(to_find: groestlcoin::Txid) -> Self {
             Self {
                 to_find,
                 tx_found: None,
             }
         }
         /// Returns the transaction found if any
-        pub fn tx_found(self) -> Option<bitcoin::Transaction> {
+        pub fn tx_found(self) -> Option<groestlcoin::Transaction> {
             self.tx_found
         }
     }
     impl crate::Visitor for FindTransaction {
         fn visit_transaction(&mut self, tx: &crate::bsl::Transaction) -> ControlFlow<()> {
-            let current = bitcoin::Txid::from_slice(tx.txid_sha2().as_slice()).expect("32");
+            let current = groestlcoin::Txid::from_slice(tx.txid_sha2().as_slice()).expect("32");
             if self.to_find == current {
-                let tx_found = bitcoin::Transaction::consensus_decode(&mut tx.as_ref())
+                let tx_found = groestlcoin::Transaction::consensus_decode(&mut tx.as_ref())
                     .expect("slice validated");
                 self.tx_found = Some(tx_found);
                 ControlFlow::Break(())
@@ -139,14 +139,14 @@ mod test {
         // assert!(iter.next().is_none())
     }
 
-    #[cfg(all(feature = "bitcoin", feature = "sha2"))]
+    #[cfg(all(feature = "groestlcoin", feature = "sha2"))]
     #[test]
     fn find_tx() {
         use crate::Visit;
         use bitcoin_test_data::blocks::mainnet_702861;
         use core::str::FromStr;
 
-        let txid = bitcoin::Txid::from_str(
+        let txid = groestlcoin::Txid::from_str(
             "416a5f96cb63e7649f6f272e7f82a43a97bcf6cfc46184c733344de96ff1e433",
         )
         .unwrap();
@@ -173,7 +173,7 @@ mod bench {
 
     use crate::bsl::{Block, TxOut};
     use crate::{Parse, Visit, Visitor};
-    use bitcoin::consensus::deserialize;
+    use groestlcoin::consensus::deserialize;
     use bitcoin_test_data::blocks::mainnet_702861;
     use test::{black_box, Bencher};
 
@@ -189,7 +189,7 @@ mod bench {
     #[bench]
     pub fn block_deserialize_bitcoin(bh: &mut Bencher) {
         bh.iter(|| {
-            let block: bitcoin::Block = deserialize(mainnet_702861()).unwrap();
+            let block: groestlcoin::Block = deserialize(mainnet_702861()).unwrap();
             black_box(&block);
         });
         bh.bytes = mainnet_702861().len() as u64;
@@ -215,7 +215,7 @@ mod bench {
     #[bench]
     pub fn block_sum_outputs_bitcoin(bh: &mut Bencher) {
         bh.iter(|| {
-            let block: bitcoin::Block = deserialize(mainnet_702861()).unwrap();
+            let block: groestlcoin::Block = deserialize(mainnet_702861()).unwrap();
             let sum: u64 = block
                 .txdata
                 .iter()
@@ -232,7 +232,7 @@ mod bench {
     pub fn hash_block_txs(bh: &mut Bencher) {
         use core::ops::ControlFlow;
 
-        use bitcoin::hashes::sha256d;
+        use groestlcoin::hashes::sha256d;
 
         bh.iter(|| {
             struct VisitTx(Vec<sha256d::Hash>);
@@ -291,7 +291,7 @@ mod bench {
     #[bench]
     pub fn hash_block_txs_bitcoin(bh: &mut Bencher) {
         bh.iter(|| {
-            let block: bitcoin::Block = deserialize(mainnet_702861()).unwrap();
+            let block: groestlcoin::Block = deserialize(mainnet_702861()).unwrap();
             let mut tx_hashes = Vec::with_capacity(block.txdata.len());
 
             for tx in block.txdata.iter() {
@@ -302,11 +302,11 @@ mod bench {
         });
     }
 
-    #[cfg(all(feature = "bitcoin", feature = "sha2"))]
+    #[cfg(all(feature = "groestlcoin", feature = "sha2"))]
     #[bench]
     pub fn find_tx(bh: &mut Bencher) {
         use std::str::FromStr;
-        let txid = bitcoin::Txid::from_str(
+        let txid = groestlcoin::Txid::from_str(
             "416a5f96cb63e7649f6f272e7f82a43a97bcf6cfc46184c733344de96ff1e433",
         )
         .unwrap();
@@ -320,16 +320,16 @@ mod bench {
         });
     }
 
-    #[cfg(feature = "bitcoin")]
+    #[cfg(feature = "groestlcoin")]
     #[bench]
     pub fn find_tx_bitcoin(bh: &mut Bencher) {
         use std::str::FromStr;
-        let txid = bitcoin::Txid::from_str(
+        let txid = groestlcoin::Txid::from_str(
             "416a5f96cb63e7649f6f272e7f82a43a97bcf6cfc46184c733344de96ff1e433",
         )
         .unwrap();
         bh.iter(|| {
-            let block: bitcoin::Block = deserialize(mainnet_702861()).unwrap();
+            let block: groestlcoin::Block = deserialize(mainnet_702861()).unwrap();
             let mut tx = None;
             for current in block.txdata {
                 if current.txid() == txid {

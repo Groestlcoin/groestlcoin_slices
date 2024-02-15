@@ -83,20 +83,20 @@ impl<'o> redb::RedbKey for OutPoint<'o> {
     }
 }
 
-#[cfg(feature = "bitcoin")]
-impl<'a> Into<bitcoin::OutPoint> for &OutPoint<'a> {
-    fn into(self) -> bitcoin::OutPoint {
-        use bitcoin::hashes::Hash;
-        bitcoin::OutPoint {
-            txid: bitcoin::Txid::from_byte_array(self.txid().try_into().unwrap()),
+#[cfg(feature = "groestlcoin")]
+impl<'a> Into<groestlcoin::OutPoint> for &OutPoint<'a> {
+    fn into(self) -> groestlcoin::OutPoint {
+        use groestlcoin::hashes::Hash;
+        groestlcoin::OutPoint {
+            txid: groestlcoin::Txid::from_byte_array(self.txid().try_into().unwrap()),
             vout: self.vout(),
         }
     }
 }
 
-#[cfg(feature = "bitcoin")]
-impl<'a> Into<bitcoin::OutPoint> for OutPoint<'a> {
-    fn into(self) -> bitcoin::OutPoint {
+#[cfg(feature = "groestlcoin")]
+impl<'a> Into<groestlcoin::OutPoint> for OutPoint<'a> {
+    fn into(self) -> groestlcoin::OutPoint {
         (&self).into()
     }
 }
@@ -148,16 +148,16 @@ mod test {
         assert_eq!(table.get(&out_point).unwrap().unwrap().value(), out_point);
     }
 
-    #[cfg(feature = "bitcoin")]
+    #[cfg(feature = "groestlcoin")]
     #[test]
     fn test_tx_out_bitcoin() {
         let out_point_slice = [1u8; 36];
         let out_point = OutPoint::parse(&out_point_slice).unwrap().parsed_owned();
 
-        let out_point_bitcoin: bitcoin::OutPoint =
-            bitcoin::consensus::deserialize(out_point.as_ref()).unwrap();
+        let out_point_bitcoin: groestlcoin::OutPoint =
+            groestlcoin::consensus::deserialize(out_point.as_ref()).unwrap();
 
-        let out_point_bitcoin_bytes = bitcoin::consensus::serialize(&out_point_bitcoin);
+        let out_point_bitcoin_bytes = groestlcoin::consensus::serialize(&out_point_bitcoin);
         assert_eq!(&out_point_slice[..], &out_point_bitcoin_bytes[..]);
     }
 }

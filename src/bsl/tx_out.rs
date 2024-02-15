@@ -79,19 +79,19 @@ impl<'o> redb::RedbValue for TxOut<'o> {
     }
 }
 
-#[cfg(feature = "bitcoin")]
-impl<'a> Into<bitcoin::TxOut> for &TxOut<'a> {
-    fn into(self) -> bitcoin::TxOut {
-        bitcoin::TxOut {
-            value: bitcoin::Amount::from_sat(self.value()),
+#[cfg(feature = "groestlcoin")]
+impl<'a> Into<groestlcoin::TxOut> for &TxOut<'a> {
+    fn into(self) -> groestlcoin::TxOut {
+        groestlcoin::TxOut {
+            value: groestlcoin::Amount::from_sat(self.value()),
             script_pubkey: self.script_pubkey().to_vec().into(),
         }
     }
 }
 
-#[cfg(feature = "bitcoin")]
-impl<'a> Into<bitcoin::TxOut> for TxOut<'a> {
-    fn into(self) -> bitcoin::TxOut {
+#[cfg(feature = "groestlcoin")]
+impl<'a> Into<groestlcoin::TxOut> for TxOut<'a> {
+    fn into(self) -> groestlcoin::TxOut {
         (&self).into()
     }
 }
@@ -139,18 +139,18 @@ mod test {
         assert_eq!(table.get("").unwrap().unwrap().value(), tx_out);
     }
 
-    #[cfg(feature = "bitcoin")]
+    #[cfg(feature = "groestlcoin")]
     #[test]
     fn test_tx_out_bitcoin() {
         let tx_out_bytes = hex!("ffffffffffffffff0100");
         let tx_out = TxOut::parse(&tx_out_bytes).unwrap().parsed_owned();
 
-        let tx_out_bitcoin: bitcoin::TxOut =
-            bitcoin::consensus::deserialize(tx_out.as_ref()).unwrap();
-        let tx_out_bitcoin_bytes = bitcoin::consensus::serialize(&tx_out_bitcoin);
+        let tx_out_bitcoin: groestlcoin::TxOut =
+            groestlcoin::consensus::deserialize(tx_out.as_ref()).unwrap();
+        let tx_out_bitcoin_bytes = groestlcoin::consensus::serialize(&tx_out_bitcoin);
         assert_eq!(&tx_out_bytes[..], &tx_out_bitcoin_bytes[..]);
 
-        let tx_out_back: bitcoin::TxOut = tx_out.into();
+        let tx_out_back: groestlcoin::TxOut = tx_out.into();
 
         assert_eq!(tx_out_back, tx_out_bitcoin);
     }

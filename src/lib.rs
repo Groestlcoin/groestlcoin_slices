@@ -33,8 +33,8 @@ pub use visit::{EmptyVisitor, Parse, Visit, Visitor};
 /// Common result type throughout the lib
 pub type SResult<'a, T> = Result<ParseResult<'a, T>, Error>;
 
-#[cfg(feature = "bitcoin_hashes")]
-pub use bitcoin_hashes;
+#[cfg(feature = "groestlcoin_hashes")]
+pub use groestlcoin_hashes;
 
 #[cfg(feature = "sha2")]
 pub use sha2;
@@ -42,8 +42,8 @@ pub use sha2;
 #[cfg(feature = "redb")]
 pub use redb;
 
-#[cfg(feature = "bitcoin")]
-pub use bitcoin;
+#[cfg(feature = "groestlcoin")]
+pub use groestlcoin;
 
 #[cfg(any(test, bench))]
 pub mod test_common {

@@ -183,12 +183,12 @@ mod bench {
         });
     }
 
-    #[cfg(feature = "bitcoin")]
+    #[cfg(feature = "groestlcoin")]
     #[bench]
     pub fn block_hash_bitcoin(bh: &mut test::Bencher) {
-        use bitcoin::consensus::deserialize;
+        use groestlcoin::consensus::deserialize;
 
-        let block_header: bitcoin::blockdata::block::Header =
+        let block_header: groestlcoin::blockdata::block::Header =
             deserialize(&crate::test_common::GENESIS_BLOCK_HEADER).unwrap();
 
         bh.iter(|| {
