@@ -177,12 +177,12 @@ mod test {
 mod bench {
     use core::ops::ControlFlow;
 
+    use crate::bsl::block::test::MAINNET_702861;
     use crate::bsl::{Block, TxOut};
     use crate::{Parse, Visit, Visitor};
     use bitcoin_test_data::blocks::mainnet_702861;
     use groestlcoin::consensus::deserialize;
     use test::{black_box, Bencher};
-    use crate::bsl::block::test::MAINNET_702861;
 
     #[bench]
     pub fn block_deserialize(bh: &mut Bencher) {
