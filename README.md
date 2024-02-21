@@ -1,17 +1,17 @@
-[![MIT license](https://img.shields.io/github/license/RCasatta/bitcoin_slices)](https://github.com/RCasatta/bitcoin_slices/blob/master/LICENSE)
-[![Crates](https://img.shields.io/crates/v/bitcoin_slices.svg)](https://crates.io/crates/bitcoin_slices)
-[![Docs](https://img.shields.io/badge/docs.rs-bitcoin_slices-green)](https://docs.rs/bitcoin_slices)
+[![MIT license](https://img.shields.io/github/license/Groestlcoin/groestlcoin_slices)](https://github.com/Groestlcoin/groestlcoin_slices/blob/master/LICENSE)
+[![Crates](https://img.shields.io/crates/v/groestlcoin_slices.svg)](https://crates.io/crates/groestlcoin_slices)
+[![Docs](https://img.shields.io/badge/docs.rs-groestlcoin_slices-green)](https://docs.rs/groestlcoin_slices)
 
-# Bitcoin slices
+# Groestlcoin slices
 
-ZERO allocations parse library for Bitcoin data structures such as [`bsl::Transaction`]s, [`bsl::Block`]s
+ZERO allocations parse library for Groestlcoin data structures such as [`bsl::Transaction`]s, [`bsl::Block`]s
 and others available in the [`bsl`] module.
 
 Data is accessed by providing [`Visitor`] structs for the data the user is interested in.
 
 ```rust
 // Calculate the amount of outputs in mainnet block 702861 in satoshi
-use bitcoin_slices::{bsl, Visit, Visitor};
+use groestlcoin_slices::{bsl, Visit, Visitor};
 struct Sum(pub u64);
 impl Visitor for Sum {
     fn visit_tx_out(&mut self, _vout: usize, tx_out: &bsl::TxOut) -> core::ops::ControlFlow<()>  {
@@ -29,7 +29,7 @@ Data structures are read-only and parsed data must be in memory, no streaming AP
 
 ## Tradeoffs
 
-Check the CONS before using this library, use [rust-bitcoin](https://github.com/rust-bitcoin/rust-bitcoin) if they are too restrictive for your case.
+Check the CONS before using this library, use [rust-groestlcoin](https://github.com/Groestlcoin/rust-groestlcoin) if they are too restrictive for your case.
 
 ### Pros
 
@@ -39,7 +39,7 @@ Check the CONS before using this library, use [rust-bitcoin](https://github.com/
 * hashing a little faster because slice are ready without the need of re-serializing data.
 * No mandatory dependency.
 * No standard.
-* Calculate txid and block hash via optional dep `bitcoin_hashes` or `sha2`.
+* Calculate txid and block hash via optional dep `groestlcoin_hashes` or `sha2`.
 * Visitor pattern to visit just what you are interested in.
 
 ### Cons
@@ -52,20 +52,20 @@ Check the CONS before using this library, use [rust-bitcoin](https://github.com/
 
 ### Hashing
 
-Use feature `sha2` or `bitcoin_hashes` to calculate hashes of blocks and transactions.
-The former is faster, the latter is more likely to be in your tree if you work with rust-bitcoin 
+Use feature `sha2` or `groestlcoin_hashes` to calculate hashes of blocks and transactions.
+The former is faster, the latter is more likely to be in your tree if you work with rust-groestlcoin 
 ecosystem's crates.
 
 ### redb
 
 With the `redb` feature activated some type allows to be used as value and key in the 
-[redb](https://github.com/cberner/redb) database. Bitcoin slices types are well suited to be used
+[redb](https://github.com/cberner/redb) database. groestlcoin slices types are well suited to be used
 as key and values in the database because conversion from/to slices is immediate.
 
 ```rust
 #[cfg(feature = "redb")]
 {
-    use bitcoin_slices::{bsl, redb, Parse, redb::ReadableTable};
+    use groestlcoin_slices::{bsl, redb, Parse, redb::ReadableTable};
     const UTXOS_TABLE: redb::TableDefinition<bsl::OutPoint, bsl::TxOut> = redb::TableDefinition::new("utxos");
     let path = tempfile::NamedTempFile::new().unwrap().into_temp_path();
     let db = redb::Database::create(path).unwrap();
@@ -86,29 +86,29 @@ as key and values in the database because conversion from/to slices is immediate
 }
 ```
 
-### rust-bitcoin
+### rust-groestlcoin
 
-With the feature `bitcoin` activated some types allows to be converted in the `rust-bitcoin` 
-counterpart: for example `bsl::TxOut` could be converted in `bitcoin::TxOut`. 
-You may think if you need `bitcoin::TxOut` you can decode the bytes directly into it without
+With the feature `groestlcoin` activated some types allows to be converted in the `rust-groestlcoin` 
+counterpart: for example `bsl::TxOut` could be converted in `groestlcoin::TxOut`. 
+You may think if you need `groestlcoin::TxOut` you can decode the bytes directly into it without
 using this library, and it is mostly true, but sometimes it may be convenient to use both types, for
-example using bitcoin slices with datatabases, but you may need to access fields more conveniently 
-than writing a visitor for it and thus convert to rust-bitcoin types. 
+example using groestlcoin slices with datatabases, but you may need to access fields more conveniently 
+than writing a visitor for it and thus convert to rust-groestlcoin types. 
 Moreover, conversions may leverage type invariants and be faster than starting from a generic byte stream.
 
 ``` rust
-#[cfg(feature = "bitcoin")]
+#[cfg(feature = "groestlcoin")]
 {
-    use bitcoin_slices::{bsl, bitcoin, Parse};
+    use groestlcoin_slices::{bsl, groestlcoin, Parse};
 
     let tx_out_bytes = hex_lit::hex!("ffffffffffffffff0100");
     let tx_out = bsl::TxOut::parse(&tx_out_bytes).unwrap().parsed_owned();
-    let tx_out_bitcoin: bitcoin::TxOut =
-        bitcoin::consensus::deserialize(&tx_out_bytes[..]).unwrap();
+    let tx_out_groestlcoin: groestlcoin::TxOut =
+        groestlcoin::consensus::deserialize(&tx_out_bytes[..]).unwrap();
 
-    let tx_out_back: bitcoin::TxOut = tx_out.into();
+    let tx_out_back: groestlcoin::TxOut = tx_out.into();
 
-    assert_eq!(tx_out_back, tx_out_bitcoin);
+    assert_eq!(tx_out_back, tx_out_groestlcoin);
 }
 ```
 
@@ -126,39 +126,39 @@ RUSTFLAGS='--cfg=bench' cargo +nightly bench --all-features
 
 ```sh
 test bsl::block::bench::block_deserialize            ... bench:     289,421 ns/iter (+/- 46,179)
-test bsl::block::bench::block_deserialize_bitcoin    ... bench:   2,719,666 ns/iter (+/- 459,186)
+test bsl::block::bench::block_deserialize_groestlcoin    ... bench:   2,719,666 ns/iter (+/- 459,186)
 test bsl::block::bench::block_sum_outputs            ... bench:     288,248 ns/iter (+/- 39,013)
-test bsl::block::bench::block_sum_outputs_bitcoin    ... bench:   2,607,791 ns/iter (+/- 321,212)
+test bsl::block::bench::block_sum_outputs_groestlcoin    ... bench:   2,607,791 ns/iter (+/- 321,212)
 test bsl::block::bench::find_tx                      ... bench:   1,012,297 ns/iter (+/- 6,278)
-test bsl::block::bench::find_tx_bitcoin              ... bench:   8,632,416 ns/iter (+/- 89,751)
+test bsl::block::bench::find_tx_groestlcoin              ... bench:   8,632,416 ns/iter (+/- 89,751)
 test bsl::block::bench::hash_block_txs               ... bench:   8,406,341 ns/iter (+/- 938,119)
-test bsl::block::bench::hash_block_txs_bitcoin       ... bench:  11,843,590 ns/iter (+/- 1,052,109)
+test bsl::block::bench::hash_block_txs_groestlcoin       ... bench:  11,843,590 ns/iter (+/- 1,052,109)
 test bsl::block::bench::hash_block_txs_sha2          ... bench:   7,891,956 ns/iter (+/- 1,047,439)
 test bsl::block_header::bench::block_hash            ... bench:       1,399 ns/iter (+/- 205)
-test bsl::block_header::bench::block_hash_bitcoin    ... bench:       1,510 ns/iter (+/- 222)
+test bsl::block_header::bench::block_hash_groestlcoin    ... bench:       1,510 ns/iter (+/- 222)
 test bsl::transaction::bench::tx_deserialize         ... bench:          38 ns/iter (+/- 8)
-test bsl::transaction::bench::tx_deserialize_bitcoin ... bench:         219 ns/iter (+/- 30)
+test bsl::transaction::bench::tx_deserialize_groestlcoin ... bench:         219 ns/iter (+/- 30)
 test bsl::transaction::bench::txid                   ... bench:       2,185 ns/iter (+/- 166)
-test bsl::transaction::bench::txid_bitcoin           ... bench:       2,416 ns/iter (+/- 213)
+test bsl::transaction::bench::txid_groestlcoin           ... bench:       2,416 ns/iter (+/- 213)
 test bsl::transaction::bench::txid_sha2              ... bench:       2,085 ns/iter (+/- 216)
 ```
 
-* benches ending with `_bitcoin` use `rust-bitcoin`
-* benches ending with `_sha2` use `sha2` lib instead of `bitcoin_hashes`
+* benches ending with `_groestlcoin` use `rust-groestlcoin`
+* benches ending with `_sha2` use `sha2` lib instead of `groestlcoin_hashes`
 
-### Comparison against rust-bitcoin
+### Comparison against rust-groestlcoin
 
-`block_deserialize` is almost 10 times faster then `block_deserialize_bitcoin`. It may see unfair 
+`block_deserialize` is almost 10 times faster then `block_deserialize_groestlcoin`. It may see unfair 
 comparison since you can't for example iterate transactions from the resulted object in case of 
 `block_deserialize`, but looking at the `sum_outputs` example where a visitor is used to access 
 every outputs in a block we se there isn't noticeable difference.
 
 ### Hashing 
 
-`block_hash` and `block_hash_bitcoin` use the same code to hash, however bitcoin_slice is about 7% 
+`block_hash` and `block_hash_groestlcoin` use the same code to hash, however groestlcoin_slice is about 7% 
 faster because use a slice already available instead of serializing back data.
-Similar results apply between `txid` and `txid_bitcoin`.
-The performance increase is more notable (30%) between `hash_block_txs` and `hash_block_txs_bitcoin`.
+Similar results apply between `txid` and `txid_groestlcoin`.
+The performance increase is more notable (30%) between `hash_block_txs` and `hash_block_txs_groestlcoin`.
 
 `*_sha2` are not really representative on virtual CI machines since they are not hardware-accellerated. 
 

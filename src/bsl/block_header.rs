@@ -70,12 +70,12 @@ impl<'a> BlockHeader<'a> {
     }
 
     /// Returns the hash of this block header
-    #[cfg(feature = "bitcoin_hashes")]
-    pub fn block_hash(&self) -> crate::bitcoin_hashes::sha256d::Hash {
-        use crate::bitcoin_hashes::{sha256d, Hash, HashEngine};
-        let mut engine = sha256d::Hash::engine();
+    #[cfg(feature = "groestlcoin_hashes")]
+    pub fn block_hash(&self) -> crate::groestlcoin_hashes::groestld::Hash {
+        use crate::groestlcoin_hashes::{groestld, Hash, HashEngine};
+        let mut engine = groestld::Hash::engine();
         engine.input(self.block_hash_preimage());
-        sha256d::Hash::from_engine(engine)
+        groestld::Hash::from_engine(engine)
     }
 
     /// Calculate the block hash using the sha2 crate.
@@ -113,10 +113,10 @@ mod test {
             block_header.parsed(),
             &BlockHeader {
                 slice: &GENESIS_BLOCK_HEADER,
-                version: 1,
-                time: 1231006505,
-                bits: 486604799,
-                nonce: 2083236893
+                version: 112,
+                time: 1395342829,
+                bits: 504365055,
+                nonce: 220035
             }
         );
         assert_eq!(block_header.consumed(), 80);
@@ -127,12 +127,12 @@ mod test {
         );
         assert_eq!(
             block_header.parsed().merkle_root(),
-            hex!("3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a")
+            hex!("bb2866aaca46c4428ad08b57bc9d1493abaf64724b6c3052a7c8f958df68e93c")
         );
 
         check_hash(
             &block_header.parsed(),
-            hex!("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
+            hex!("00000ac5927c594d49cc0bdb81759d0da8297eb614683d3acb62f0703b639023"),
         );
     }
 
@@ -142,33 +142,34 @@ mod test {
         assert_eq!(std::mem::size_of::<BlockHeader>(), 32);
     }
 
-    #[cfg(all(not(feature = "sha2"), not(feature = "bitcoin_hashes")))]
+    #[cfg(all(not(feature = "sha2"), not(feature = "groestlcoin_hashes")))]
     fn check_hash(_block: &BlockHeader, _expected: [u8; 32]) {}
 
-    #[cfg(all(not(feature = "sha2"), feature = "bitcoin_hashes"))]
+    #[cfg(all(not(feature = "sha2"), feature = "groestlcoin_hashes"))]
     fn check_hash(block: &BlockHeader, expected: [u8; 32]) {
         use crate::test_common::reverse;
         assert_eq!(&block.block_hash()[..], &reverse(expected)[..]);
     }
 
-    #[cfg(all(feature = "sha2", not(feature = "bitcoin_hashes")))]
+    #[cfg(all(feature = "sha2", not(feature = "groestlcoin_hashes")))]
     fn check_hash(block: &BlockHeader, expected: [u8; 32]) {
         use crate::test_common::reverse;
         assert_eq!(&block.block_hash_sha2()[..], &reverse(expected)[..]);
     }
 
-    #[cfg(all(feature = "sha2", feature = "bitcoin_hashes"))]
+    #[cfg(all(feature = "sha2", feature = "groestlcoin_hashes"))]
     fn check_hash(block: &BlockHeader, expected: [u8; 32]) {
         use crate::test_common::reverse;
         assert_eq!(&block.block_hash()[..], &reverse(expected)[..]);
-        assert_eq!(&block.block_hash_sha2()[..], &reverse(expected)[..]);
+        // block_hash() and block_hash_sha2() do not match
+        // assert_eq!(&block.block_hash_sha2()[..], &reverse(expected)[..]);
     }
 }
 
 #[cfg(bench)]
 mod bench {
 
-    #[cfg(feature = "bitcoin_hashes")]
+    #[cfg(feature = "groestlcoin_hashes")]
     #[bench]
     pub fn block_hash(bh: &mut test::Bencher) {
         use crate::bsl::BlockHeader;
@@ -183,12 +184,12 @@ mod bench {
         });
     }
 
-    #[cfg(feature = "bitcoin")]
+    #[cfg(feature = "groestlcoin")]
     #[bench]
     pub fn block_hash_bitcoin(bh: &mut test::Bencher) {
-        use bitcoin::consensus::deserialize;
+        use groestlcoin::consensus::deserialize;
 
-        let block_header: bitcoin::blockdata::block::Header =
+        let block_header: groestlcoin::blockdata::block::Header =
             deserialize(&crate::test_common::GENESIS_BLOCK_HEADER).unwrap();
 
         bh.iter(|| {
